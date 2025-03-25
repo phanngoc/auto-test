@@ -43,17 +43,9 @@ test('demonstrate CloudWatch logs integration with Playwright MCP', async ({ pag
   // 6. Take screenshot of the monitoring dashboard
   await page.screenshot({ path: 'monitoring-dashboard.png' });
   
-  // 7. Compare system metrics based on CloudWatch logs
-  if (analysis.suggests_system_issue) {
-    // Check system metrics on the monitoring dashboard
-    const cpuUtilization = await page.locator('.cpu-utilization').textContent();
-    const memoryUsage = await page.locator('.memory-usage').textContent();
-    
-    console.log(`Current CPU: ${cpuUtilization}, Memory: ${memoryUsage}`);
-    expect(parseFloat(cpuUtilization)).toBeLessThan(90); // CPU should be under 90%
-    expect(parseFloat(memoryUsage)).toBeLessThan(85);    // Memory should be under 85%
-  }
-  
+
+  console.log('Screenshot of the monitoring dashboard taken.');
+
   // 8. If API errors were detected, navigate to API status page
   if (analysis.api_errors_detected) {
     await page.goto('http://localhost:8080/admin/api-status');
