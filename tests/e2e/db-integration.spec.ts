@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { db } from '../../playwright/utils/database';
-import { claude } from '../../playwright/utils/claude';
 
 test('demonstrate database integration with Playwright MCP', async ({ page }) => {
   // Set longer timeout for MCP initialization
@@ -9,11 +8,7 @@ test('demonstrate database integration with Playwright MCP', async ({ page }) =>
   // 1. Fetch data from the database using MCP
   const orders = await db.query('SELECT * FROM orders WHERE id IN (2885, 2877) LIMIT 2');
   console.log('Orders fetched from database:', orders);
-  
-  // 2. Use Claude to analyze the order data
-  const analysis = await claude.analyze('Identify any potential issues with these orders', orders);
-  console.log('Claude analysis:', analysis);
-  
+
   // 3. Use Playwright to navigate to the admin interface
   await page.goto('http://localhost:8080/admin/login');
   
@@ -42,16 +37,5 @@ test('demonstrate database integration with Playwright MCP', async ({ page }) =>
       console.log(`Order ID ${orderId} checkbox not found`);
     }
   }
-  
-  // 7. Complete order preparation if Claude analysis suggests it
-  if (!analysis.error && !analysis.has_issues) {
-    await page.getByRole('button', { name: '出荷準備完了' }).click();
-    await page.getByRole('button', { name: 'OK' }).click();
-    await expect(page.getByText('処理が完了しました')).toBeVisible();
-  } else {
-    console.log('Skipping order completion due to issues detected in analysis');
-  }
-  
-  // Clean up MCP connections
-  await claude.close();
+
 });

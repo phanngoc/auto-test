@@ -47,6 +47,62 @@ This project supports reading data from databases to use in automated tests:
     });
     ```
 
+## AWS RDS Integration
+
+The project supports direct integration with AWS RDS databases:
+
+1. Configure your RDS settings in `.env` file:
+    ```
+    AWS_REGION=us-east-1
+    AWS_ACCESS_KEY_ID=your_access_key
+    AWS_SECRET_ACCESS_KEY=your_secret_key
+    RDS_SSL=true
+    
+    # MySQL settings
+    RDS_MYSQL_HOST=your-mysql-instance.rds.amazonaws.com
+    RDS_MYSQL_PORT=3306
+    RDS_MYSQL_USER=admin
+    RDS_MYSQL_PASSWORD=your_password
+    RDS_MYSQL_DATABASE=mydatabase
+    
+    # PostgreSQL settings
+    RDS_PG_HOST=your-postgres-instance.rds.amazonaws.com
+    RDS_PG_PORT=5432
+    RDS_PG_USER=postgres
+    RDS_PG_PASSWORD=your_password
+    RDS_PG_DATABASE=postgres
+    ```
+
+2. Use the RDS utility in your tests:
+    ```typescript
+    import { rds } from '../../playwright/utils/rds';
+    
+    test('test with RDS data', async ({ page }) => {
+      // Connect to PostgreSQL RDS
+      const pgConn = await rds.connectToPostgres({
+        host: process.env.RDS_PG_HOST,
+        port: process.env.RDS_PG_PORT,
+        user: process.env.RDS_PG_USER,
+        password: process.env.RDS_PG_PASSWORD,
+        database: process.env.RDS_PG_DATABASE
+      });
+      
+      // Execute a query
+      const products = await rds.query(
+        pgConn.connectionId,
+        'SELECT * FROM products WHERE category = $1',
+        ['electronics']
+      );
+      
+      // Use the data in your test
+      console.log(`Found ${products.length} electronics products`);
+      
+      // Don't forget to close the connection when done
+      await rds.closeConnection(pgConn.connectionId);
+      await rds.close(); // Close the MCP server if done with all tests
+    });
+    ```
+
 ## MCP (Claude) Integration
 
 The project integrates Claude for AI-assisted testing:

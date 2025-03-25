@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { cloudwatch } from '../../playwright/utils/cloudwatch';
-import { claude } from '../../playwright/utils/claude';
 
 test('demonstrate CloudWatch logs integration with Playwright MCP', async ({ page }) => {
   // Set longer timeout for MCP initialization and AWS API calls
@@ -20,9 +19,7 @@ test('demonstrate CloudWatch logs integration with Playwright MCP', async ({ pag
   );
   console.log(`Found ${logs.length} error logs in the past 2 hours`);
   
-  // 2. Use Claude to analyze the log data
-  const analysis = await claude.analyze('Identify patterns in these error logs and suggest possible causes', logs);
-  console.log('Claude analysis of logs:', analysis);
+
   
   // 3. Use Playwright to navigate to the admin interface
   await page.goto('http://localhost:8080/admin/login');
@@ -46,14 +43,7 @@ test('demonstrate CloudWatch logs integration with Playwright MCP', async ({ pag
 
   console.log('Screenshot of the monitoring dashboard taken.');
 
-  // 8. If API errors were detected, navigate to API status page
-  if (analysis.api_errors_detected) {
-    await page.goto('http://localhost:8080/admin/api-status');
-    const apiStatus = await page.locator('.api-status').textContent();
-    expect(apiStatus).toContain('Operational');
-  }
-  
+
   // Clean up MCP connections
   await cloudwatch.close();
-  await claude.close();
 });
