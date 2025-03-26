@@ -27,7 +27,7 @@ test('test', async ({ page }) => {
     
     await page.getByRole('button', { name: '実行' }).click();
 
-
+    await page.waitForTimeout(3000);
     await expect(page.getByRole('link', { name: '2800040000385' })).toBeVisible();
 
 
